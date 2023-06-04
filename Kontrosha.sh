@@ -1,5 +1,11 @@
 #!/bin/bash
-#variables
+#This script will help you complete the final test effortlessly, everything is configured automatically and without your participation. 
+#You will only need to specify passwords for user accounts
+#Author: Griban Ilya
+#All rights belong to him)
+
+#All very ugly variables
+#Network ifaces
 network="
 auto lo
 iface lo inet loopback
@@ -15,7 +21,7 @@ auto eth2
 iface eth2 inet static
         address 172.16.0.1
         netmask 255.255.255.0"
-#DHCP snapshot
+#DHCP config
 DHCP="
 subnet 172.16.0.0 netmask 255.255.255.0 {
         range 172.16.0.2 172.16.0.10;
@@ -28,7 +34,7 @@ subnet 10.0.0.0 netmask 255.255.255.0 {
         option routers 10.0.0.1;
         option domain-name-servers 10.0.0.1;
 }"
-#Samba config
+#SMB config
 SMB="
 [students]
 comment = students
@@ -42,7 +48,7 @@ create mask = 0777
 directory mask = 0777
 force create mode = 0777
 force directory mode = 0777
- 
+
 [teachers]
 comment = teachers
 path = /data/teachers
@@ -69,45 +75,48 @@ directory mask = 0777
 force create mode = 0777
 force directory mode = 0777
 "
-#Add dns zone
+#Aditional DNS zone name
 DNSzone="
 zone "mgok" {
         type master;
         file "/etc/bind/db.mgok";
 };
 "
-#Begin big fun
-#Configure new network repos
+
+#Start huge fun and all the action
+#Configuring network repositories
 echo "deb https://mirror.yandex.ru/debian bullseye main contrib non-free
 deb https://mirror.yandex.ru/debian bullseye-backports main contrib non-free
 deb https://mirror.yandex.ru/debian bullseye-updates main contrib non-free
 " > /etc/apt/sources.list
-#Install packages
+#Installing the necessary packages
 apt update;
 apt install unzip bind9 nginx openssl php7.4 php7.4-fpm php7.4-mysql mariadb-server isc-dhcp-server samba -y;
+
+
 #Configuring network ifaces
 echo "$network" > /etc/network/interfaces
 #Config Router mode
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-#After pre config
+#Network subsystem reboot
 systemctl restart networking.service;
-
 #Configuration DHCP
 sed -i 's/INTERFACESv4=""/INTERFACESv4="eth1 eth2"/' /etc/default/isc-dhcp-server
 echo "$DHCP" > /etc/dhcp/dhcpd.conf
 systemctl enable isc-dhcp-server;
 systemctl restart isc-dhcp-server;
 
+
 #Config SSH for root login and "22 port?)"
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config 
 sed -i 's/#Port 22/Port 22/' /etc/ssh/sshd_config
 systemctl restart sshd;
 
+
 #Make new directories
 mkdir -p /data/students/ & chmod 777 /data/students;
 mkdir –p /data/teachers/ & chmod 777 /data/teachers;
 mkdir –p /data/apps/ & chmod 777 /data/apps;
-
 #Make new userss
 echo "Set passwd -> P@ssw0rd"
 adduser student
@@ -116,10 +125,10 @@ adduser admin
 smbpasswd -a student;
 smbpasswd -a teacher;
 smbpasswd -a admin;
-
 #Config samba
 echo "${SMB}" >> /etc/samba/smb.conf
 systemctl restart smbd;
+
 
 #Config DNS
 echo "${DNSzone}" >> /etc/bind/named.conf.default-zones
@@ -140,11 +149,9 @@ $TTL    604800
 it-school       IN      A       10.0.0.1
 " > /etc/bind/db.mgok
 systemctl restart bind9;
-
 #download certificate 
 wget http://192.168.5.240/Cert.zip
 unzip Cert.zip -d /var/www/;
-
 #Config NGINX
 echo 'server {
     listen              443 ssl;
