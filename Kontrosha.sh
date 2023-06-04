@@ -99,7 +99,8 @@ systemctl enable isc-dhcp-server;
 systemctl restart isc-dhcp-server;
 
 #Config SSH for root login and "22 port?)"
-sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config & sed -i 's/#Port 22/Port 22/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config 
+sed -i 's/#Port 22/Port 22/' /etc/ssh/sshd_config
 systemctl restart sshd;
 
 #Make new directories
@@ -117,11 +118,11 @@ smbpasswd -a teacher;
 smbpasswd -a admin;
 
 #Config samba
-sed -i '237a\'"${SMB}" /etc/samba/smb.conf
+echo "${SMB}" >> /etc/samba/smb.conf
 systemctl restart smbd;
 
 #Config DNS
-sed -i '30a\'"${DNSzone}" /etc/bind/named.conf.default-zones
+echo "${DNSzone}" >> /etc/bind/named.conf.default-zones
 echo "
 ;
 ; BIND data file for local loopback interface
