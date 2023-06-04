@@ -175,5 +175,4 @@ echo 'server {
 		fastcgi_read_timeout 300;
 	}
 }' > /etc/nginx/sites-available/default
-nginx -t;
 systemctl restart nginx.service;
