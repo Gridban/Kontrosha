@@ -173,4 +173,30 @@ echo 'server {
 		fastcgi_read_timeout 300;
 	}
 }' > /etc/nginx/sites-available/default
-systemctl restart nginx.service;
+
+#Gen SSL cert
+openssl genrsa -out private.key 2048
+echo '
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_extensions
+distinguished_name = dn
+
+[dn]
+C=RU
+ST=MSK
+L=MSK
+O=MGOK
+OU=IT Department
+emailAddress=admin@mgok.ru
+CN = *.it-school.mgok
+
+[req_extensions]
+subjectAltName = @alter_name
+
+[alter_name]
+DNS.1 = *.it-school.mgok
+IP.1 = 10.0.0.1' > /root/ssl.conf
+openssl req -new -key private.key -out request.csr -config openssl.conf;
