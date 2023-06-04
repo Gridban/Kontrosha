@@ -17,6 +17,7 @@ auto eth1
 iface eth1 inet static
         address 10.0.0.1
         netmask 255.255.255.0
+
 auto eth2
 iface eth2 inet static
         address 172.16.0.1
@@ -148,9 +149,7 @@ $TTL    604800
 it-school       IN      A       10.0.0.1
 " > /etc/bind/db.mgok
 systemctl restart bind9;
-#download certificate 
-wget http://192.168.5.240/Cert.zip
-unzip Cert.zip -d /var/www/;
+
 #Config NGINX
 echo 'server {
     listen              443 ssl;
