@@ -75,13 +75,7 @@ directory mask = 0777
 force create mode = 0777
 force directory mode = 0777
 "
-#Aditional DNS zone name
-DNSzone="
-zone "mgok" {
-        type master;
-        file "/etc/bind/db.mgok";
-};
-"
+
 
 #Start huge fun and all the action
 #Configuring network repositories
@@ -131,7 +125,12 @@ systemctl restart smbd;
 
 
 #Config DNS
-echo "${DNSzone}" >> /etc/bind/named.conf.default-zones
+echo '
+zone "mgok" {
+        type master;
+        file "/etc/bind/db.mgok";
+}; ' >> /etc/bind/named.conf.default-zones
+
 echo "
 ;
 ; BIND data file for local loopback interface
